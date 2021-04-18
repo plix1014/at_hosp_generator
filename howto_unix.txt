@@ -1,0 +1,21 @@
+
+1. install Python 3 for Linux/MacOS
+
+2. this creates a vertual Python environment
+
+    python3 -m venv py_icu_env
+
+    # activate env
+    source py_icu_env/bin/activate
+
+    # install packages
+    pip install -U pip wheel
+    pip install -r requirements.txt 
+
+
+3. run script
+    (1) and (2) needs to be done only once
+
+    source py_icu_env/bin/activate
+    python at_hosp_csv2excel.py
+

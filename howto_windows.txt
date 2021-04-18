@@ -1,0 +1,32 @@
+
+1. download Python 3 for Windows
+   https://www.python.org/downloads/windows/
+
+
+2. Install Python 3
+   - select Customize Installation
+   - select installation for all users
+       e.g. -Install for all users : C:\Program Files\Python39
+   - select add installation path to PATH
+
+
+
+3. Run Generator script
+   (1) and (2) needs to be run only once.
+
+   generate.cmd
+
+   It also generates a virtual environment, if it does not already exist
+
+   Script downloads csv-Files once a Day from AGES and creates a workbook
+
+
+3. run preparation script (optional)
+   this creates a virtual Python environment.
+   In %systemdrive%%homepath% you will find the directory "py_icu_env"
+
+   You can delete this virtual environment directory 'py_icu_env' at any time
+
+   prepare_icu_venv.cmd is automatically called by generate.cmd
+
+
