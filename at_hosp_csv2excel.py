@@ -6,24 +6,21 @@
 #   https://www.youtube.com/watch?v=A_8ZNvl2ZWQ
 #
 #
-# Author:      Peter Lidauer <plix1014@gmail.com>
+# Author:      <plix1014@gmail.com>
 #
 # Created:     17.04.2021
-# Copyright:   (c) Peter Lidauer 2021
+# Copyright:   (c) 2021
 # Licence:     CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/
 #-------------------------------------------------------------------------------
-
 
 import ssl
 import time
 import os, getopt, sys
-import getpass
 #
 from datetime import date, timedelta, datetime
 import requests
 #
 import pandas as pd
-
 
 import openpyxl
 
@@ -45,28 +42,16 @@ TRACE   = False
 TMP = '/tmp'
 DIR_SEP = '/'
 
-cur_user = getpass.getuser()
-
-if sys.platform == "linux2" or sys.platform == "linux":
-    if os.path.exists('/home/' + cur_user + '/Documents/covid'):
-        data_home = '/home/' + cur_user + '/Documents/covid/'
-    else:
-        data_home = '/home/' + cur_user + '/data/covid/'
-
-elif sys.platform == "darwin":
-    data_home = '/Users/' + cur_user + '/Documents/covid/'
-
-else:
-    data_home = "C:\\Users\\" + cur_user + "\\Documents\\peter\\dev\\other\\covid\\"
+if sys.platform == "win32":
     DIR_SEP = '\\'
 
-
+# relativ path
 data_home = '.' + DIR_SEP
 subdir    = 'data'
 
 # create data dir
 if not os.path.exists(data_home + subdir):
-    os.mkdir(data_home + subdir)
+    os.makedirs(data_home + subdir)
 
 
 headers_agent  = {'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15'}
@@ -79,16 +64,14 @@ URL_DATA2 = 'https://info.gesundheitsministerium.at/data/'
 # http://www.kaz.bmg.gv.at/fileadmin/user_upload/Betten/11_T_Betten_Fachr.xlsx
 URL_KAZ = 'http://www.kaz.bmg.gv.at/fileadmin/user_upload/Betten/'
 
-
-# input csv
-AGES_BETTEN    = '11_T_Betten_Fachr.xlsx'
+# input source files
+KAZ_BETTEN     = '11_T_Betten_Fachr.xlsx'
 AGES_FALL      = 'CovidFallzahlen.csv'
 AGES_Einwohner = 'CovidFaelle_Altersgruppe.csv'
 AGES_IMPFUNG   = 'timeline-bundeslaendermeldungen.csv'
 
-# output
+# output file
 AT_HOSP     = 'AT_Hospitalisierung.xlsx'
-#
 
 # store Einwohner from AGES_Einwohner
 BL_Einwohner = { 'Burgenland': 0,
@@ -118,13 +101,13 @@ def print_dbg(level,msg):
 
 
 def check_age(file_name,age=1):
+    """ check age of source files
+    """
 
     file_mod_time = datetime.fromtimestamp(os.stat(file_name).st_mtime)  # This is a datetime.datetime object!
     now = datetime.today()
     max_delay = timedelta(days=age)
     file_age = now-file_mod_time
-	#PLI
-    print_dbg(VERBOSE,"%s date is %s. This is more than %s days ago" % (os.path.basename(file_name),file_mod_time,file_age.days))
 
     if file_age > max_delay:
         print_dbg(VERBOSE,"%s date is %s. This is more than %s days ago" % (os.path.basename(file_name),file_mod_time,file_age.days))
@@ -134,16 +117,17 @@ def check_age(file_name,age=1):
 
 
 def download_files():
-    #
+    """ download source files
+    """
     # workaround for: ssl.SSLError: [SSL: DH_KEY_TOO_SMALL] dh key too small
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += 'HIGH:!DH:!aNULL'
     try:
         requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST += 'HIGH:!DH:!aNULL'
     except AttributeError:
         # no pyopenssl support used / needed / available
-            pass
+        pass
 
-    for fn in [AGES_FALL,AGES_Einwohner,AGES_BETTEN, AGES_IMPFUNG]:
+    for fn in [AGES_FALL,AGES_Einwohner,KAZ_BETTEN, AGES_IMPFUNG]:
         fage = 1
         IS_OLD = False
 
@@ -153,7 +137,7 @@ def download_files():
         else:
             url = URL_DATA1 + fn
 
-        if fn == AGES_BETTEN:
+        if fn == KAZ_BETTEN:
             fage = 300
             url = URL_KAZ + fn
 
@@ -166,14 +150,12 @@ def download_files():
 
         if IS_OLD:
             print_dbg(INFO,"downloading %s from %s" % (fn,url))
-            #r = requests.get(url, verify=False)
             r = requests.get(url=url, headers=headers_agent)
             with open(infile, 'wb') as f:
                 f.write(r.content)
 
         else:
             print_dbg(INFO,"%s is current." % fn)
-
 
 
 
@@ -200,21 +182,12 @@ def import_ages_csv2df(fn, csv_sep=';', decsep=',', dateField='Datum'):
 
     df = pd.read_csv(csv, sep=csv_sep, encoding='utf-8', decimal=decsep)
 
-    #dateField='time'
-    #chkDatum = list(df)[0]
-    #if chkDatum == dateField:
-    #    # remove time
-    #    df[dateField] = df[dateField].str.replace(exclusions,'')
-#
-    #    df[dateField] = pd.to_datetime(df[dateField],format='%d.%m.%Y')
-    #    df.set_index(dateField, inplace=True)
-    #    df = df.sort_index()
-
     return df
 
 
-
 def read_xlsx(xls, year=None):
+    """ read xls file
+    """
 
     print_dbg(VERBOSE,"reading %s" % xls)
     xlsin = data_home + subdir + DIR_SEP + xls
@@ -238,9 +211,9 @@ def read_xlsx(xls, year=None):
 def set_values(row, value):
     return value[row]
 
-
 def run_build():
-    df  = pd.DataFrame()
+    """ build dataframes with all rows
+    """
 
     # ages files to dataframe
     df_fa = import_ages_csv2df(AGES_FALL)
@@ -251,11 +224,7 @@ def run_build():
     print_dbg(DEBUG,"Column Einwohner: %s" % df_ew.columns)
 
     # KAZ file to dataframe
-    df_bed = read_xlsx(AGES_BETTEN);
-
-
-    # Meldedat;TestGesamt;MeldeDatum;FZHosp;FZICU;FZHospFree;FZICUFree;BundeslandID;Bundesland
-    # 01.04.2020;0;01.04.2020 00:00:00;7;3;12;3;1;Burgenland
+    df_bed = read_xlsx(KAZ_BETTEN);
 
     print_dbg(DEBUG,"")
     print_dbg(DEBUG,"-- 0 ----------------------------------")
@@ -267,12 +236,10 @@ def run_build():
     for key in BL_Einwohner.keys():
         x = df_ew.loc[df_ew['Bundesland'] == key, 'AnzEinwohner'].sum()
         BL_Einwohner[key] = x
-        #print_dbg(VERBOSE,"Val Einwohner   : %s" % x)
 
 
     # original column header
     # Index(['Unnamed: 0', 'Österreich', 'BGLD', 'KTN', 'NÖ', 'OÖ', 'SBG', 'STM', 'TIR', 'VLB', 'WIEN'],
-
     df_bed.rename(columns={'BGLD': 'Burgenland',
                            'KTN' : 'Kärnten',
                            'NÖ'  : 'Niederösterreich',
@@ -286,7 +253,6 @@ def run_build():
 
     print_dbg(DEBUG,"Column Einwohner: %s" % df_bed.columns)
 
-
     # get all the ICU beds
     at_beds = {}
     for key in BL_Einwohner.keys():
@@ -298,16 +264,16 @@ def run_build():
     print_dbg(DEBUG,"-- 1 ----------------------------------")
 
     # prepare data
+    # Meldedat;TestGesamt;MeldeDatum;FZHosp;FZICU;FZHospFree;FZICUFree;BundeslandID;Bundesland
+    # 01.04.2020;0;01.04.2020 00:00:00;7;3;12;3;1;Burgenland
     key='Meldedat'
     df_fa[key] = pd.to_datetime(df_fa[key],format='%d.%m.%Y')
     df_fa.set_index(key, inplace=True)
     df_fa      = df_fa.sort_index()
     df_fa.fillna(0, inplace=True)
 
-
     # rename value Alle
     df_fa.loc[df_fa['Bundesland'] == 'Alle', ['Bundesland'] ] = 'Österreich'
-
 
     # calc
     df_fa['TestGesamt']        = df_fa['TestGesamt'].astype(int)
@@ -337,13 +303,13 @@ def run_build():
 
     print_dbg(DEBUG,"-- 2 -----------------------------------")
 
-    # sheet 1: build columns as from video
+    # sheet 1: build columns for sheet 1
     #                       B            C        D            E                  F                  G       H           I                 J
     df_fa1 = df_fa.loc[:, ['TestGesamt','FZHosp','FZHospFree','Norm. zugewiesen','Norm. Auslastung','FZICU','FZICUFree','ICU zugewiesen', 'ICU Auslastung',
         'ICU Anteil f. Corona','ICU Betten gesamt','Bundesland','Einwohner', 'ICU Betten gesamt pro 100T']]
     #    K                      L                   M
 
-    # sheet 2: build columns as from video
+    # sheet 2: build columns for sheet 2
     #                       B            C        D            E                  F                  G       H                    I           J
     df_fa2 = df_fa.loc[:, ['TestGesamt','FZHosp','FZHospFree','Norm. zugewiesen','Norm. Auslastung','FZICU','v. Intensiv Total', 'FZICUFree','ICU zugewiesen',
         'ICU Auslastung', 'ICU Anteil f. Corona','ICU Betten gesamt','Bundesland','Einwohner', 'ICU Betten gesamt pro 100T']]
@@ -372,12 +338,14 @@ def run_build():
 
 
 def export_df(df, fn):
+    """ write dataframes to multiple worksheets
+    """
+
     fout = data_home + subdir + DIR_SEP + fn
 
     print_dbg(INFO,"saving data to %s" % AT_HOSP)
 
-    # open excel file
-    #writer = pd.ExcelWriter(fout, engine='xlsxwriter')
+    # create new xls file
     writer = pd.ExcelWriter(fout, engine='openpyxl', date_format = '%Y-%m-%d')
 
     SN='Intensiv'
@@ -402,6 +370,13 @@ def export_df(df, fn):
 
 
 def format_cells(fn):
+    """ apply format to float fields
+        set background color for some columns
+        set autofilter
+        lock first row
+        set column width
+    """
+
     fout = data_home + subdir + DIR_SEP + fn
 
     xl_sheets   = ['Intensiv', 'Total', 'Impfungen']
@@ -505,13 +480,15 @@ def format_cells(fn):
 
 
 def copy_sheet_to_result(src_file,tgt_file):
+    """ copy sheet from KAZ file to result file
+    """
+
+    # copy sheet 2019 to BettenFachrichtung
     fsrc = data_home + subdir + DIR_SEP + src_file
     xl_src = openpyxl.load_workbook(fsrc)
 
     ftgt = data_home + subdir + DIR_SEP + tgt_file
     xl_tgt = openpyxl.load_workbook(ftgt)
-
-    # copy sheet 2019 to BettenFachrichtung
 
     return
 
@@ -646,8 +623,7 @@ if __name__ == "__main__":
     df = run_build()
     export_df(df,AT_HOSP)
 
-
-    source_file_path = data_home + subdir + DIR_SEP + AGES_BETTEN
+    source_file_path = data_home + subdir + DIR_SEP + KAZ_BETTEN
     source_sheet_name = '2019'
     target_file_path = data_home + subdir + DIR_SEP + AT_HOSP
     target_sheet_name = 'BettenFachrichtung'
