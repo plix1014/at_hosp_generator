@@ -10,10 +10,10 @@ CSV Dateien werden einmal am Tag von der AGES Homepage runtergeladen.
 * [Python 3 f. MacOS](https://docs.python-guide.org/starting/install3/osx//) software
 * Linux: apt-get install python3 || yum install python3
 
-Installed with requirements.txt
-* python 'pandas' module
-* python 'requests' module
-* python 'openpyxl' module
+Die Moduleabhängigkeiten werden mit dem requirements.txt installiert
+* Modul 'pandas'
+* Modul 'requests'
+* Modul 'openpyxl'
 
 
 ### Installation f. Windows
@@ -34,6 +34,13 @@ generate.cmd
 prepare_icu_venv.cmd
 at_hosp_csv2excel.py
 ```
+
+### Installation f. MacOS/Linux
+
+Vorbereitung des Python environments siehe howto_unix.txt
+Wenn kein venv verwendet wird, kann man die Module auch direkt installieren.
+
+Sind alle Abhängigkeiten aufgelöst, einfach das Python Skript ausführen.
 
 * Dateien für Unix
 ```
