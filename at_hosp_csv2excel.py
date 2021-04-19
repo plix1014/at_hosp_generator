@@ -356,7 +356,7 @@ def export_df(df, fn):
     print_dbg(VERBOSE, " write sheet name %s to file..." % SN)
 
     # last day
-    df[2].tail(11).to_excel(writer, sheet_name= SN, index = True, header = True)
+    df[2].tail(10).to_excel(writer, sheet_name= SN, index = True, header = True)
 
     # all
     #df[2].to_excel(writer, sheet_name= SN, index = True, header = True)
@@ -384,7 +384,7 @@ def format_cells(fn):
     xl_sh_t_pct = [6,8,11,12]
     xl_sh_v_pct = [7]
 
-    col_pat_list_i = [ 8,9,10,11,12]
+    col_pat_list_i = [ 8,9,10,11,12,13]
     col_pat_list_t = [ 9,10,11,12,13,14,15,16]
     col_pat_list_v = [ 7]
 
