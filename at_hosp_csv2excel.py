@@ -68,7 +68,14 @@ URL_KAZ = 'http://www.kaz.bmg.gv.at/fileadmin/user_upload/Betten/'
 KAZ_BETTEN     = '11_T_Betten_Fachr.xlsx'
 AGES_FALL      = 'CovidFallzahlen.csv'
 AGES_Einwohner = 'CovidFaelle_Altersgruppe.csv'
-AGES_IMPFUNG   = 'timeline-bundeslaendermeldungen.csv'
+# obsolete
+#AGES_IMPFUNG   = 'timeline-bundeslaendermeldungen.csv'
+# new 
+AGES_IMPFUNG   = 'timeline-eimpfpass.csv'
+
+# statistik austria
+# https://www.statistik.at/web_de/statistiken/menschen_und_gesellschaft/bevoelkerung/bevoelkerungsstand_und_veraenderung/bevoelkerung_zu_jahres-_quartalsanfang/index.html
+
 
 # output file
 AT_HOSP     = 'AT_Hospitalisierung.xlsx'
@@ -326,10 +333,89 @@ def run_build():
     df_va      = df_va.sort_index()
     df_va.fillna(0, inplace=True)
 
+    df_va['BundeslandID']  = df_va['BundeslandID'].astype(int)
     df_va['Bevölkerung']                     = df_va['Bevölkerung'].astype(int)
-    df_va['GemeldeteImpfungenLaender']       = df_va['GemeldeteImpfungenLaender'].astype(int)
-    df_va['GemeldeteImpfungenLaenderPro100'] = df_va['GemeldeteImpfungenLaenderPro100'].astype(float)
 
+    # obsolete, old csv
+    #df_va['GemeldeteImpfungenLaender']       = df_va['GemeldeteImpfungenLaender'].astype(int)
+    #df_va['GemeldeteImpfungenLaenderPro100'] = df_va['GemeldeteImpfungenLaenderPro100'].astype(float)
+
+    df_va['EingetrageneImpfungen']       = df_va['EingetrageneImpfungen'].astype(int)
+    df_va['EingetrageneImpfungenPro100'] = df_va['EingetrageneImpfungenPro100'].astype(float)
+
+    df_va['Teilgeimpfte']                = df_va['Teilgeimpfte'].astype(int)
+    df_va['TeilgeimpftePro100']          = df_va['TeilgeimpftePro100'].astype(float)
+    df_va['Vollimmunisierte']            = df_va['Vollimmunisierte'].astype(int)
+    df_va['VollimmunisiertePro100']      = df_va['VollimmunisiertePro100'].astype(float)
+    df_va['Gruppe_<15_M_1']              = df_va['Gruppe_<15_M_1'].astype(int)
+    df_va['Gruppe_<15_W_1']              = df_va['Gruppe_<15_W_1'].astype(int)
+    df_va['Gruppe_<15_D_1']              = df_va['Gruppe_<15_D_1'].astype(int)
+    df_va['Gruppe_15-24_M_1']            = df_va['Gruppe_15-24_M_1'].astype(int)
+    df_va['Gruppe_15-24_W_1']            = df_va['Gruppe_15-24_W_1'].astype(int)
+    df_va['Gruppe_15-24_D_1']            = df_va['Gruppe_15-24_D_1'].astype(int)
+    df_va['Gruppe_25-34_M_1']            = df_va['Gruppe_25-34_M_1'].astype(int)
+    df_va['Gruppe_25-34_W_1']            = df_va['Gruppe_25-34_W_1'].astype(int)
+    df_va['Gruppe_25-34_D_1']            = df_va['Gruppe_25-34_D_1'].astype(int)
+    df_va['Gruppe_35-44_M_1']            = df_va['Gruppe_35-44_M_1'].astype(int)
+    df_va['Gruppe_35-44_W_1']            = df_va['Gruppe_35-44_W_1'].astype(int)
+    df_va['Gruppe_35-44_D_1']            = df_va['Gruppe_35-44_D_1'].astype(int)
+    df_va['Gruppe_45-54_M_1']            = df_va['Gruppe_45-54_M_1'].astype(int)
+    df_va['Gruppe_45-54_W_1']            = df_va['Gruppe_45-54_W_1'].astype(int)
+    df_va['Gruppe_45-54_D_1']            = df_va['Gruppe_45-54_D_1'].astype(int)
+    df_va['Gruppe_55-64_M_1']            = df_va['Gruppe_55-64_M_1'].astype(int)
+    df_va['Gruppe_55-64_W_1']            = df_va['Gruppe_55-64_W_1'].astype(int)
+    df_va['Gruppe_55-64_D_1']            = df_va['Gruppe_55-64_D_1'].astype(int)
+    df_va['Gruppe_65-74_M_1']            = df_va['Gruppe_65-74_M_1'].astype(int)
+    df_va['Gruppe_65-74_W_1']            = df_va['Gruppe_65-74_W_1'].astype(int)
+    df_va['Gruppe_65-74_D_1']            = df_va['Gruppe_65-74_D_1'].astype(int)
+    df_va['Gruppe_75-84_M_1']            = df_va['Gruppe_75-84_M_1'].astype(int)
+    df_va['Gruppe_75-84_W_1']            = df_va['Gruppe_75-84_W_1'].astype(int)
+    df_va['Gruppe_75-84_D_1']            = df_va['Gruppe_75-84_D_1'].astype(int)
+    df_va['Gruppe_>84_M_1']              = df_va['Gruppe_>84_M_1'].astype(int)
+    df_va['Gruppe_>84_W_1']              = df_va['Gruppe_>84_W_1'].astype(int)
+    df_va['Gruppe_>84_D_1']              = df_va['Gruppe_>84_D_1'].astype(int)
+    df_va['Gruppe_<15_M_2']              = df_va['Gruppe_<15_M_2'].astype(int)
+    df_va['Gruppe_<15_W_2']              = df_va['Gruppe_<15_W_2'].astype(int)
+    df_va['Gruppe_<15_D_2']              = df_va['Gruppe_<15_D_2'].astype(int)
+    df_va['Gruppe_15-24_M_2']            = df_va['Gruppe_15-24_M_2'].astype(int)
+    df_va['Gruppe_15-24_W_2']            = df_va['Gruppe_15-24_W_2'].astype(int)
+    df_va['Gruppe_15-24_D_2']            = df_va['Gruppe_15-24_D_2'].astype(int)
+    df_va['Gruppe_25-34_M_2']            = df_va['Gruppe_25-34_M_2'].astype(int)
+    df_va['Gruppe_25-34_W_2']            = df_va['Gruppe_25-34_W_2'].astype(int)
+    df_va['Gruppe_25-34_D_2']            = df_va['Gruppe_25-34_D_2'].astype(int)
+    df_va['Gruppe_35-44_M_2']            = df_va['Gruppe_35-44_M_2'].astype(int)
+    df_va['Gruppe_35-44_W_2']            = df_va['Gruppe_35-44_W_2'].astype(int)
+    df_va['Gruppe_35-44_D_2']            = df_va['Gruppe_35-44_D_2'].astype(int)
+    df_va['Gruppe_45-54_M_2']            = df_va['Gruppe_45-54_M_2'].astype(int)
+    df_va['Gruppe_45-54_W_2']            = df_va['Gruppe_45-54_W_2'].astype(int)
+    df_va['Gruppe_45-54_D_2']            = df_va['Gruppe_45-54_D_2'].astype(int)
+    df_va['Gruppe_55-64_M_2']            = df_va['Gruppe_55-64_M_2'].astype(int)
+    df_va['Gruppe_55-64_W_2']            = df_va['Gruppe_55-64_W_2'].astype(int)
+    df_va['Gruppe_55-64_D_2']            = df_va['Gruppe_55-64_D_2'].astype(int)
+    df_va['Gruppe_65-74_M_2']            = df_va['Gruppe_65-74_M_2'].astype(int)
+    df_va['Gruppe_65-74_W_2']            = df_va['Gruppe_65-74_W_2'].astype(int)
+    df_va['Gruppe_65-74_D_2']            = df_va['Gruppe_65-74_D_2'].astype(int)
+    df_va['Gruppe_75-84_M_2']            = df_va['Gruppe_75-84_M_2'].astype(int)
+    df_va['Gruppe_75-84_W_2']            = df_va['Gruppe_75-84_W_2'].astype(int)
+    df_va['Gruppe_75-84_D_2']            = df_va['Gruppe_75-84_D_2'].astype(int)
+    df_va['Gruppe_>84_M_2']              = df_va['Gruppe_>84_M_2'].astype(int)
+    df_va['Gruppe_>84_W_2']              = df_va['Gruppe_>84_W_2'].astype(int)
+    df_va['Gruppe_>84_D_2']              = df_va['Gruppe_>84_D_2'].astype(int)
+    df_va['Gruppe_NichtZuordenbar']      = df_va['Gruppe_NichtZuordenbar'].astype(int)
+    df_va['EingetrageneImpfungenBioNTechPfizer_1']  = df_va['EingetrageneImpfungenBioNTechPfizer_1'].astype(int)
+    df_va['EingetrageneImpfungenModerna_1']         = df_va['EingetrageneImpfungenModerna_1'].astype(int)
+    df_va['EingetrageneImpfungenAstraZeneca_1']     = df_va['EingetrageneImpfungenAstraZeneca_1'].astype(int)
+    df_va['EingetrageneImpfungenBioNTechPfizer_2']  = df_va['EingetrageneImpfungenBioNTechPfizer_2'].astype(int)
+    df_va['EingetrageneImpfungenModerna_2']         = df_va['EingetrageneImpfungenModerna_2'].astype(int)
+    df_va['EingetrageneImpfungenAstraZeneca_2']     = df_va['EingetrageneImpfungenAstraZeneca_2'].astype(int)
+    df_va['EingetrageneImpfungenJanssen']           = df_va['EingetrageneImpfungenJanssen'].astype(int)
+    df_va['ImpfstoffNichtZugeordnet_1']             = df_va['ImpfstoffNichtZugeordnet_1'].astype(int)
+    df_va['ImpfstoffNichtZugeordnet_2']             = df_va['ImpfstoffNichtZugeordnet_2'].astype(int)
+
+
+    # cell is formated as % later, thats why we need to convert to a percentage number
+    df_va['TeilgeimpftePro100']          = df_va['TeilgeimpftePro100'] / 100
+    df_va['VollimmunisiertePro100']      = df_va['VollimmunisiertePro100'] / 100
 
     print_dbg(INFO," data preparation finished")
 
@@ -382,11 +468,11 @@ def format_cells(fn):
     xl_sheets   = ['Intensiv', 'Total', 'Impfungen']
     xl_sh_i_pct = [6,10,11]
     xl_sh_t_pct = [6,8,11,12]
-    xl_sh_v_pct = [7]
+    xl_sh_v_pct = [9,11]
 
     col_pat_list_i = [ 8,9,10,11,12,13]
     col_pat_list_t = [ 9,10,11,12,13,14,15,16]
-    col_pat_list_v = [ 7]
+    col_pat_list_v = [ 9,11]
 
     # column colors
     col_green = 'b3d09a'
