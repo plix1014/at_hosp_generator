@@ -9,6 +9,7 @@
 # Author:      <plix1014@gmail.com>
 #
 # Created:     17.04.2021
+# Modified:    13.11.2021
 # Copyright:   (c) 2021
 # Licence:     CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/
 #-------------------------------------------------------------------------------
@@ -68,10 +69,11 @@ URL_KAZ = 'http://www.kaz.bmg.gv.at/fileadmin/user_upload/Betten/'
 KAZ_BETTEN     = '11_T_Betten_Fachr.xlsx'
 AGES_FALL      = 'CovidFallzahlen.csv'
 AGES_Einwohner = 'CovidFaelle_Altersgruppe.csv'
-# obsolete
-#AGES_IMPFUNG   = 'timeline-bundeslaendermeldungen.csv'
-# new 
+AGES_IMPFUNG   = 'timeline-bundeslaendermeldungen.csv'
 AGES_IMPFUNG   = 'timeline-eimpfpass.csv'
+
+# default name of sheet in KAZ_BETTEN
+source_sheet_name = '2019'
 
 # statistik austria
 # https://www.statistik.at/web_de/statistiken/menschen_und_gesellschaft/bevoelkerung/bevoelkerungsstand_und_veraenderung/bevoelkerung_zu_jahres-_quartalsanfang/index.html
@@ -195,15 +197,19 @@ def import_ages_csv2df(fn, csv_sep=';', decsep=',', dateField='Datum'):
 def read_xlsx(xls, year=None):
     """ read xls file
     """
+    global source_sheet_name
 
     print_dbg(VERBOSE,"reading %s" % xls)
     xlsin = data_home + subdir + DIR_SEP + xls
 
-    pd_xls = pd.ExcelFile(xlsin)
+    pd_xls       = pd.ExcelFile(xlsin)
+    # number of sheets
+    sn           = len(pd_xls.sheet_names)
+    # sheetname we need
+    source_sheet_name = pd_xls.sheet_names[(int(sn)-1)]
 
-    sn = len(pd_xls.sheet_names)
     print_dbg(VERBOSE,"  sheets       : %s %s" % (sn,pd_xls.sheet_names))
-    print_dbg(VERBOSE,"  reading sheet: %s [%s]" % ((int(sn)-1),pd_xls.sheet_names[(int(sn)-1)]))
+    print_dbg(VERBOSE,"  reading sheet: %s [%s]" % ((int(sn)-1),source_sheet_name))
 
     df = pd.read_excel(xlsin, sheet_name = pd_xls.sheet_names[int(sn)-1], header = 3)
 
@@ -336,7 +342,6 @@ def run_build():
     df_va['BundeslandID']  = df_va['BundeslandID'].astype(int)
     df_va['Bevölkerung']                     = df_va['Bevölkerung'].astype(int)
 
-    # obsolete, old csv
     #df_va['GemeldeteImpfungenLaender']       = df_va['GemeldeteImpfungenLaender'].astype(int)
     #df_va['GemeldeteImpfungenLaenderPro100'] = df_va['GemeldeteImpfungenLaenderPro100'].astype(float)
 
@@ -710,7 +715,6 @@ if __name__ == "__main__":
     export_df(df,AT_HOSP)
 
     source_file_path = data_home + subdir + DIR_SEP + KAZ_BETTEN
-    source_sheet_name = '2019'
     target_file_path = data_home + subdir + DIR_SEP + AT_HOSP
     target_sheet_name = 'BettenFachrichtung'
     copy_excel_sheet_in_different_file(source_file_path, source_sheet_name, target_file_path, target_sheet_name)
