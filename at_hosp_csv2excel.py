@@ -9,7 +9,7 @@
 # Author:      <plix1014@gmail.com>
 #
 # Created:     17.04.2021
-# Modified:    13.11.2021
+# Modified:    05.03.2023
 # Copyright:   (c) 2021
 # Licence:     CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/
 #-------------------------------------------------------------------------------
@@ -246,8 +246,28 @@ def run_build():
     # sum up all Einwohner
     df_ew['AnzEinwohner']     = df_ew['AnzEinwohner'].astype(int)
 
+    # get slice of dataframe
+    df_ew_part = df_ew.loc[:,['Time', 'Bundesland', 'AnzEinwohner']]
+
+    print_dbg(DEBUG,"-- df_ew_part: %s" % df_ew_part.head(3))
+
+    key='Time'
+    # 26.02.2020 00:00:00
+    # convert string to datetime
+    print_dbg(DEBUG, "-- to datetime")
+    df_ew_part[key] = pd.to_datetime(df_ew_part[key],format='%d.%m.%Y %H:%M:%S')
+    df_ew_part.set_index(key, inplace=True)
+    df_ew_part      = df_ew_part.sort_index()
+
+    time_max = df_ew_part.index.max()
+    print_dbg(DEBUG,"-- time_max: %s" % time_max)
+
+    # select only the date from the last date
+    df_ew_max = df_ew_part.loc[time_max]
+    print_dbg(DEBUG,"-- dfx: %s" % df_ew_max.head())
+
     for key in BL_Einwohner.keys():
-        x = df_ew.loc[df_ew['Bundesland'] == key, 'AnzEinwohner'].sum()
+        x = df_ew_max.loc[df_ew_max['Bundesland'] == key, 'AnzEinwohner'].sum()
         BL_Einwohner[key] = x
 
 
